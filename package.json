@@ -1,0 +1,42 @@
+{
+  "name": "lv-tree",
+  "version": "1.0.0",
+  "description": "flexible tree view component base on Vue.js 2.0",
+  "main": "./dist/lv-tree.min.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "parcel serve ./example/index.html --open -d .cache",
+    "build": "rollup -c"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lany44/lv-tree.git"
+  },
+  "keywords": [
+    "vue-tree",
+    "v-tree",
+    "tree",
+    "vue"
+  ],
+  "author": "ylan",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/lany44/lv-tree/issues"
+  },
+  "homepage": "https://github.com/lany44/lv-tree#readme",
+  "devDependencies": {
+    "@vue/component-compiler-utils": "^2.1.0",
+    "vue-hot-reload-api": "^2.3.0",
+    "babel-core": "^6.26.3",
+    "babel-plugin-external-helpers": "^6.22.0",
+    "babel-preset-env": "1.7.0",
+    "babel-preset-stage-3": "6.24.1",
+    "rollup": "0.59.4",
+    "rollup-plugin-babel": "3.0.7",
+    "rollup-plugin-scss": "^0.4.0",
+    "rollup-plugin-uglify": "3.0.0",
+    "rollup-plugin-vue": "3.0.0",
+    "vue": "^2.5.16",
+    "vue-template-compiler": "^2.5.16"
+  }
+}
