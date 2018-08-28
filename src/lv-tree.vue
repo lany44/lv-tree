@@ -9,8 +9,8 @@
     
     <div class="lv-tree-wrap">
         <ul :class="{'root': isRoot}" class="lv-tree">
-            <li v-for="(item, index) in renderData" :key="index" class="tree-node">
-                <lv-tree-node :node="item" :options="options">
+            <li v-for="item in renderData" :key="item.$$uid" class="tree-node">
+                <lv-tree-node :node="item" :options="options" @drag="onDrag" @drop="onDrop">
                     <template slot="fold-icon">
                         <slot name="fold-icon" :node="item" :parent="item.$$parent"></slot>
                     </template>
@@ -22,9 +22,10 @@
                     <renderChildTree
                         v-if="hasChildren(item)"
                         slot="children"
-                        :scoped-slots="$scopedSlots"
+                        :options="options"
                         :data="item.children"
-                        :options="options"/>
+                        :scoped-slots="$scopedSlots"
+                        :listeners="$listeners"/>
                 </lv-tree-node>
             </li>
         </ul>
@@ -34,28 +35,36 @@
 
 <script>
 
-    import LvTreeNode from './lv-tree-node.vue';
+    import {preOrderTreeList, cloneTreeList} from './helper';
+
+    import LvTreeNode from './lv-tree-node';
 
     const renderChildTree = {
         props: {
             data: Array,
             options: Object,
-            scopedSlots: Object
+            scopedSlots: Object,
+            listeners: Object
         },
 
         render(createEle) {
-            const {data, options, scopedSlots} = this;
+            const {data, options, scopedSlots, listeners} = this;
 
             return createEle('lv-tree', {
                 props: {
                     data,
                     options
                 },
-                scopedSlots
+                scopedSlots,
+                on: {
+                    ...listeners
+                }
             });
         }
     };
 
+    let Uid = 0;
+    let DraggingNode = null;
 
     export default {
         name: 'LvTree',
@@ -74,6 +83,7 @@
             options: {
                 type: Object,
                 default: () => ({
+                    enableDrag: false,
                     foldDeep: null
                 })
             }
@@ -93,6 +103,10 @@
 
                 if (isRoot) {
                     const rec = (node, deep, parent) => {
+                        vm.$set(node, '$$uid', Uid++);
+                        vm.$set(node, '$$rootData', data);
+                        vm.$set(node, '$$isDragging', false);
+                        vm.$set(node, '$$isDraggingOver', false);
                         vm.$set(node, '$$deep', deep);
                         vm.$set(node, '$$parent', parent);
                         if (typeof node.$$isFold === 'boolean') {
@@ -118,6 +132,42 @@
         methods: {
             hasChildren(node) {
                 return node.children && node.children.length > 0;
+            },
+
+            onDrag(node) {
+                DraggingNode = node;
+            },
+
+            onDrop(dropNode) {
+                const vm = this;
+                if (dropNode.$$isDragging || DraggingNode.$$parent === dropNode) return;
+                const rootDataCopy = cloneTreeList(DraggingNode.$$rootData);
+                let draggingNodeCopy;
+                let dropNodeCopy;
+
+                preOrderTreeList(rootDataCopy, (node) => {
+                    if (node.$$uid === DraggingNode.$$uid) draggingNodeCopy = node;
+                    if (node.$$uid === dropNode.$$uid) dropNodeCopy = node;
+
+                    node.$$isDragging = false;
+                    node.$$isDraggingOver = false;
+                });
+
+                const spliceList = draggingNodeCopy.$$parent
+                    ? draggingNodeCopy.$$parent.children
+                    : draggingNodeCopy.$$rootData;
+
+                spliceList.splice(spliceList.indexOf(draggingNodeCopy), 1);
+                draggingNodeCopy.$$parent = dropNodeCopy;
+                draggingNodeCopy.$$deep = dropNodeCopy.$$deep + 1;
+                dropNodeCopy.children.push(draggingNodeCopy);
+
+                vm.$emit('drag', {
+                    dragNode: draggingNodeCopy,
+                    dropNode: dropNodeCopy,
+                    afterData: rootDataCopy
+                });
+                DraggingNode = null;
             }
         }
     }

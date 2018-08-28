@@ -23,7 +23,20 @@
                 <slot name="fold-icon" v-if="hasChildren" :class="{'is-unfold': !isFold}" @click="changeFold"></slot>
             </div>
 
-            <slot name="content"></slot>
+            <div :draggable="options.enableDrag"
+                 :class="{
+                    'is-dragging': node.$$isDragging,
+                    'is-dragging-over': node.$$isDraggingOver
+                 }"
+                 @dragstart="onDragStart(node)"
+                 @dragend="onDragEnd(node)"
+                 @dragenter.prevent="onDragOver(node)"
+                 @dragover.prevent="onDragOver(node)"
+                 @dragleave="onDragLeave(node)"
+                 @drop="onDrop(node)"
+            >
+                <slot name="content"></slot>
+            </div>
         </div>
 
         <div v-if="!isFold" class="child-tree-wrap">
@@ -33,6 +46,8 @@
 </template>
 
 <script type="text/babel" scoped>
+
+    import {preOrderTreeList} from './helper';
 
     export default {
         name: 'LvTreeNode',
@@ -81,6 +96,34 @@
             changeFold() {
                 const vm = this;
                 vm.node.$$isFold = !vm.node.$$isFold;
+            },
+
+            onDragStart(node) {
+                const vm = this;
+
+                preOrderTreeList([node], nodeItem => (nodeItem.$$isDragging = true));
+                vm.$emit('drag', node);
+            },
+
+            onDragEnd(node) {
+                preOrderTreeList([node], nodeItem => (nodeItem.$$isDragging = false));
+            },
+
+            onDragOver(node) {
+                if (!node.$$isDragging) {
+                    node.$$isDraggingOver = true;
+                }
+            },
+
+            onDragLeave(node) {
+                node.$$isDraggingOver = false;
+            },
+
+            onDrop(node) {
+                const vm = this;
+
+                node.$$isDraggingOver = false;
+                vm.$emit('drop', node);
             }
         }
     };
@@ -90,6 +133,7 @@
 <style lang="scss">
     
     $primary: #304ffe !default;
+    $primary-lighter: #c5cae9 !default;
 
     $gray-lighter: #f3f3f3 !default;
     $gray-light: #e0e0e0 !default;
@@ -178,6 +222,16 @@
                         }
                     }
                 }
+            }
+
+            .is-dragging {
+                * {
+                    color: $gray-light;
+                }
+            }
+
+            .is-dragging-over {
+                background-color: $primary-lighter;
             }
         }
     }

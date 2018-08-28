@@ -26,6 +26,7 @@
   "homepage": "https://github.com/lany44/lv-tree#readme",
   "devDependencies": {
     "@vue/component-compiler-utils": "^2.1.0",
+    "parcel-bundler": "^1.9.7",
     "vue-hot-reload-api": "^2.3.0",
     "babel-core": "^6.26.3",
     "babel-plugin-external-helpers": "^6.22.0",
@@ -33,10 +34,11 @@
     "babel-preset-stage-3": "6.24.1",
     "rollup": "0.59.4",
     "rollup-plugin-babel": "3.0.7",
+    "rollup-plugin-node-resolve": "^3.3.0",
     "rollup-plugin-scss": "^0.4.0",
     "rollup-plugin-uglify": "3.0.0",
     "rollup-plugin-vue": "3.0.0",
-    "vue": "^2.5.16",
+    "vue": "^2.5.17",
     "vue-template-compiler": "^2.5.16"
   }
 }

@@ -8,7 +8,7 @@
 <template>
 
     <div class="demo">
-        <lv-tree :data="forest">
+        <lv-tree :data="forest" :options="options" @drag="onDrag">
             <i slot-scope="scope" slot="fold-icon" class="icon-arrow-right" @click="changeFold(scope.node)"></i>
             <div slot-scope="scope" class="tree-node">{{ scope.node.name }}</div>
         </lv-tree>
@@ -66,8 +66,8 @@
             id: 2,
             name: "node-2",
             children: [
-            { id: 5, name: "node-2-1", children: [] },
-            { id: 6, name: "node-2-2", children: [] }
+                { id: 5, name: "node-2-1", children: [] },
+                { id: 6, name: "node-2-2", children: [] }
             ]
         }
     ];
@@ -77,13 +77,20 @@
 
         data() {
             return {
-            forest: FOREST
+                forest: FOREST,
+                options: {
+                    enableDrag: true
+                }
             };
         },
 
         methods: {
             changeFold(node) {
                 node.$$isFold = !node.$$isFold;
+            },
+
+            onDrag({dragNode, dropNode, afterData}) {
+                this.forest = afterData;
             }
         }
     };

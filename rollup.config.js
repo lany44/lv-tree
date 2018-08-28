@@ -6,6 +6,7 @@
  */
 
 import babel from 'rollup-plugin-babel';
+import resolve from 'rollup-plugin-node-resolve';
 import vue from 'rollup-plugin-vue';
 import scss from 'rollup-plugin-scss';
 import uglify from 'rollup-plugin-uglify';
@@ -18,6 +19,9 @@ export default {
         name: 'LvTree'
     },
     plugins: [
+        resolve({
+            extensions: ['.js', '.json', '.vue']
+        }),
         vue({
             styleToImports: true
         }),
